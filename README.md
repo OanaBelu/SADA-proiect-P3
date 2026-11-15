@@ -1,60 +1,37 @@
-# P3. Toleranță ierarhică la defectare pe o rețea de mobilitate
+# P3. Toleranță ierarhică la defectare pe rețeaua rutieră a Timișoarei
 
-Kit de pornire pentru proiectul de semestru la **Sisteme autoadaptive. Design și aplicații**.
+Proiect la **Sisteme autoadaptive. Design și aplicații**.
 
-Construiți un sistem de recuperare pe trei nivele pentru o rețea rutieră de 500–3000 de noduri: detecție, comutare pe rute de rezervă precalculate și degradare controlată, cu servirea perechilor prioritare. Muchiile cad izolat, țintit sau în grup (inundație, traversări de râu). În paralel, implementați o buclă Langton (sau Byl) care se autoreplică și o comparați cu refacerea unei rute.
+Pe harta centrului Timișoarei se închid străzi (aleator, țintit sau în grup: inundație, poduri, axa centrală). Un controller MAPE-K recuperează călătoriile pe trei niveluri:
 
-## Ce găsiți aici
+1. **detecție**: găsește perechile OD care trec pe străzile căzute;
+2. **corecție**: le mută pe ruta de rezervă calculată dinainte;
+3. **degradare controlată**: dacă nu există rezervă, servește doar perechile prioritare (spre spitale).
 
-| Fișier / folder | Pentru ce |
-|---|---|
-| `GHID.md` | **Începeți de aici.** Pașii de implementare, cu fișierele implicate și cum verificați fiecare pas |
-| `milestones/` | Etapele (săptămânile 3, 5, 9, 12, 14): ce predați, ce trebuie să aveți, codul și lecturile pentru fiecare etapă, șabloane |
-| `DATE.md` | Graful, populația, scenariile de defect, regulile automatului celular și de unde le luați |
-| `RESURSE.md` | Articole, documentație, unelte |
-| `setup/` | Instalare pentru Linux/macOS/WSL (`setup.sh`) și Windows (`setup.ps1`) |
-| `config/default.yaml` | Căile datelor, perechile OD, defectele, scenariile și variantele |
-| `src/sada/p3/` | `graph_io.py`, `od.py`, `metrics.py`, `ca.py` sunt gata; `routes.py`, `failures.py`, `recovery.py`, `experiments.py` au părți TODO |
-| `scripts/` | descărcarea rețelei, inspecția grafului, perechile OD, importanța muchiilor, automatul celular, experimentele, figurile |
-| `examples/toy_mapek.py` | Exemplu complet de buclă MAPE-K pe un sistem de jucărie |
-| `notebooks/01_explorare.ipynb` | Explorarea datelor pentru primele etape; rulează și fără datele din pachet |
-| `raport/latex/` | Șablonul LaTeX al raportului (IEEE pe Overleaf), cu diagrama MAPE-K a temei și bibliografia de pornire |
-| `tests/` | `pytest -q`; testul pentru ruta de rezervă e sărit până o implementați |
-| `docs/`, `raport/`, `prezentare/` | ghiduri scurte, schelete, liste de verificare |
+Separat, o buclă Langton care se autoreplică, comparată cu refacerea unei rute.
 
-## Unelte pe etape
+## Instalare
 
-| Script | Etapa | Ce face |
-|---|---|---|
-| `scripts/milestone_check.py M1..M5` | toate | verifică ce lipsește pentru etapa respectivă |
-| `scripts/demo_prototip.py` | M3 | demonstrația pentru prototip (jurnal + figură) |
-| `scripts/plot_decisions.py` | M3–M5 | o măsurătoare din jurnal, cu deciziile controllerului marcate |
-| `scripts/estimate_runtime.py` | M3–M4 | cât durează experimentul complet |
-| `scripts/report_numbers.py` | M4 | diferențe, p și A12 pentru secțiunea de rezultate |
-| `scripts/verify_submission.py` | M5 | verificarea finală pe o copie curată a depozitului |
-
-## Pornire rapidă
-
-```bash
-bash setup/setup.sh                       # Windows: powershell -ExecutionPolicy Bypass -File setup\setup.ps1
-source .venv/bin/activate                 # Windows: .\.venv\Scripts\Activate.ps1
-python scripts/check_env.py
-python examples/toy_mapek.py
-# după ce copiați pachetul de date în data/p3_retea/ și ajustați data.graph în config:
-python scripts/inspect_graph.py data/p3_retea/<graf>.graphml
-python scripts/prepare_od.py
-pytest -q
+```powershell
+powershell -ExecutionPolicy Bypass -File setup\setup.ps1
+.\.venv\Scripts\Activate.ps1
 ```
 
-## Comanda care reface tot
+## Comenzi
 
-```bash
-python scripts/run_all.py              # scenarii × variante × seed-uri -> results/results.csv
-python scripts/make_figures.py         # boxplot-uri și tabele cu medie ± abatere
+```powershell
+python scripts\inspect_graph.py data\p3_retea\retea.graphml   # verifică graful, desen în results/figures/network.pdf
+python scripts\prepare_od.py                                  # perechile OD -> data/od_pairs.csv
+pytest -q                                                     # testele
 ```
 
-## Ce e gata și ce faceți voi
+## Date
 
-Gata: citirea și verificarea grafului, eșantionarea perechilor OD, calculul rapid al costurilor OD și al conectivității, importanța muchiilor, motorul de automat celular cu reguli Golly (@TABLE) și modele RLE, numărarea structurilor, descărcarea rețelei din OSM, infrastructura de experimente și statistică.
+Rețeaua: 1141 de intersecții și 2865 de străzi, din OpenStreetMap. Perechile OD: 300 eșantionate după populație + 36 prioritare, seed 42. Sursele și licențele sunt în `data/DATA.md`.
 
-Voi: rutele de rezervă, cele trei tipuri de defect, recuperarea pe nivele ca buclă MAPE-K, experimentele, rularea și analiza buclei Langton, secțiunea de comparație, raportul.
+## Pornit din
+
+Kitul de pornire P3 și resursele cursului. Ce am adăugat:
+
+- datele din resursele cursului, instalate cu `instaleaza.py` (`data/p3_retea/`, `data/ca/`);
+- perechile OD generate cu `scripts/prepare_od.py` și fixate (`data/od_pairs.csv`).
