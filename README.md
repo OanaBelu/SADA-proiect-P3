@@ -35,3 +35,4 @@ Kitul de pornire P3 și resursele cursului. Ce am adăugat:
 
 - datele din resursele cursului, instalate cu `instaleaza.py` (`data/p3_retea/`, `data/ca/`);
 - perechile OD generate cu `scripts/prepare_od.py` și fixate (`data/od_pairs.csv`).
+- harta cu spitalele: `scripts/harta_spitale.py` → `results/figures/harta_spitale.pdf` / `.png`.
