@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import networkx as nx
 
-from .graph_io import path_edges
+from .graph_io import node_key, path_edges
 
 
 def primary_route(G, o, d, weight: str = "length") -> list:
@@ -35,7 +35,19 @@ def backup_route(G, o, d, primary: list, weight: str = "length") -> list | None:
 def precompute(G, pairs, weight: str = "length") -> dict:
     """{(o, d): {"primary": [...], "primary_edges": set(...), "backup": [...] | None,
                  "backup_edges": set(...)}}  TODO."""
-    raise NotImplementedError("precompute (GHID.md, pasul 3)")
+    rute = {}
+    for _, r in pairs.iterrows():
+        o = node_key(G, r["origin"])
+        d = node_key(G, r["destination"])
+        a = primary_route(G, o, d, weight)
+        b = backup_route(G, o, d, a, weight)
+        rute[(o, d)] = {
+            "primary": a,
+            "primary_edges": set(path_edges(G, a, weight)),
+            "backup": b,
+            "backup_edges": set(path_edges(G, b, weight)) if b else set(),
+        }
+    return rute
 
 
 __all__ = ["primary_route", "backup_route", "precompute", "path_edges"]
