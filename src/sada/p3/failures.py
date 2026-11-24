@@ -38,4 +38,12 @@ def targeted_failures(G, frac: float, importance: dict, recompute: bool = False)
 
 def group_failure(G, scenario: dict) -> list:
     """Toate muchiile unui scenariu de defect în grup (din fișierul de sinteză). TODO"""
-    raise NotImplementedError
+    # inundatia are faze: le punem pe toate intr-o singura lista
+    if "faze" in scenario:
+        muchii = []
+        for faza in scenario["faze"]:
+            muchii += faza
+    else:
+        muchii = scenario["muchii"]
+    # din [u, v, cheie] facem (u, v, cheie), ca la celelalte doua functii
+    return [tuple(m) for m in muchii]
