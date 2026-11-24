@@ -16,7 +16,13 @@ def edge_importance(G, k: int | None = 500, weight: str = "length", seed: int = 
 
 def random_failures(G, frac: float, rng: np.random.Generator) -> list:
     """Lista muchiilor de eliminat, alese aleator (frac din total). TODO"""
-    raise NotImplementedError
+    # toate strazile, mereu in aceeasi ordine
+    muchii = sorted(G.edges(keys=True))
+    # cate cad: 10 % din 2865 = 287
+    n = round(frac * len(muchii))
+    # alegem n pozitii diferite, apoi luam strazile de pe ele
+    alese = rng.choice(len(muchii), size=n, replace=False)
+    return [muchii[i] for i in alese]
 
 
 def targeted_failures(G, frac: float, importance: dict, recompute: bool = False) -> list:
