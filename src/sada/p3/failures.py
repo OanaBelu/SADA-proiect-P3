@@ -28,7 +28,12 @@ def random_failures(G, frac: float, rng: np.random.Generator) -> list:
 def targeted_failures(G, frac: float, importance: dict, recompute: bool = False) -> list:
     """Muchiile cele mai importante, în ordine. Dacă recompute=True, importanța se
     recalculează după fiecare eliminare (mai realist, mult mai lent). TODO"""
-    raise NotImplementedError
+    # strazile de la cea mai importanta la cea mai putin importanta
+    ordonate = sorted(importance, key=importance.get, reverse=True)
+    # cate cad: acelasi procent ca la aleator
+    n = round(frac * G.number_of_edges())
+    # primele n din lista ordonata
+    return ordonate[:n]
 
 
 def group_failure(G, scenario: dict) -> list:
