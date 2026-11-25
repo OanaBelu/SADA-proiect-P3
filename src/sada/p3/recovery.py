@@ -85,10 +85,25 @@ class HierarchicalRecovery(Controller):
     """
 
     def monitor(self, network, t):
-        raise NotImplementedError
+        # strazile inchise de la tura trecuta
+        noi = set(network.new_failures)
+        # le golesc, ca la tura urmatoare sa ramana doar ce se inchide atunci
+        network.new_failures.clear()
+        # analyze nu primeste reteaua, asa ca o tin minte in k
+        self.k.state["retea"] = network
+        # ce s-a inchis acum si cate sunt inchise de la inceput
+        return {"noi": noi, "inchise_total": len(network.failed)}
 
     def analyze(self, measurements, t):
-        raise NotImplementedError
+        # daca nu s-a inchis nimic nou, nu am ce cauta
+        if not measurements["noi"]:
+            return {"afectate": []}
+        # iau reteaua pe care a pus-o monitor in k
+        network = self.k.state["retea"]
+        # calatoriile al caror drum de acum trece pe o strada inchisa
+        afectate = [od for od, drum in network.current.items()
+                    if drum is not None and not network.route_ok(drum)]
+        return {"afectate": afectate}
 
     def plan(self, assessment, t):
         raise NotImplementedError
