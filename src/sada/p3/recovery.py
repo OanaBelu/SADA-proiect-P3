@@ -15,6 +15,7 @@ import pandas as pd
 from sada.mapek import Controller
 
 from .graph_io import node_key
+from .routes import primary_route
 
 
 @dataclass
@@ -106,7 +107,30 @@ class HierarchicalRecovery(Controller):
         return {"afectate": afectate}
 
     def plan(self, assessment, t):
-        raise NotImplementedError
+        # daca nu e nicio calatorie afectata, nu am nimic de hotarat
+        if not assessment["afectate"]:
+            return None
+
+        # iau reteaua pe care a pus-o monitor in k
+        network = self.k.state["retea"]
+        # calatoriile spre spitale (doar ele primesc nivelul 3)
+        prioritare = {od for od, prio in network.od_keys() if prio}
+        # aici notez ce hotarasc pentru fiecare calatorie: (calatoria, nivelul, drumul)
+        decizii = []
+        for od in assessment["afectate"]:
+            # drumul b al calatoriei, calculat de precompute in routes.py (None daca nu are)
+            rezerva = network.routes[od]["backup"]
+            # nivelul 2: drumul b exista si e intreg, merg pe el
+            if rezerva is not None and network.route_ok(rezerva):
+                decizii.append((od, 2, rezerva))
+            # nivelul 3: doar pentru spitale caut un drum nou pe harta ramasa
+            elif od in prioritare and nx.has_path(network.view(), *od):
+                drum_nou = primary_route(network.view(), *od)
+                decizii.append((od, 3, drum_nou))
+            # restul raman fara drum (degradarea controlata)
+            else:
+                decizii.append((od, None, None))
+        return {"decizii": decizii} 
 
     def execute(self, network, action, t):
         raise NotImplementedError
