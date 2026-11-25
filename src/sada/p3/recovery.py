@@ -129,7 +129,7 @@ class HierarchicalRecovery(Controller):
                 decizii.append((od, 3, drum_nou))
             # restul raman fara drum (degradarea controlata)
             else:
-                decizii.append((od, None, None))
+                decizii.append((od, 3, None))
         return {"decizii": decizii} 
 
     def execute(self, network, action, t):
