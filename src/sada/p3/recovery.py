@@ -133,4 +133,8 @@ class HierarchicalRecovery(Controller):
         return {"decizii": decizii} 
 
     def execute(self, network, action, t):
-        raise NotImplementedError
+    # pentru fiecare calatorie, scriu pe tabla ce a hotarat plan
+        for od, nivel, drum in action["decizii"]:
+            network.current[od] = drum  # drumul pe care merge de acum (None = fara drum)
+            network.level[od] = nivel # cine o serveste acum: 2 = drumul b, 3 = drum nou, None = nimeni
+
